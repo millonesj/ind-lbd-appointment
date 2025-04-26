@@ -1,0 +1,155 @@
+service: ind-appointment
+
+frameworkVersion: '4'
+
+plugins:
+  - serverless-iam-roles-per-function
+  - serverless-offline
+
+provider:
+  name: aws
+  runtime: nodejs20.x
+  region: us-east-1
+  environment:
+    APPOINTMENTS_TABLE: AppointmentsTable
+    SNS_TOPIC_ARN: 
+      Ref: AppointmentTopic
+    SQS_PE_URL: 
+      Ref: SQSPEQueue
+    SQS_CL_URL:
+      Ref: SQSCLQueue
+    SQS_CONFIRMATION_URL:
+      Ref: SQSConfirmationQueue
+
+  iamRoleStatements:
+    - Effect: "Allow"
+      Action:
+        - dynamodb:PutItem
+        - dynamodb:UpdateItem
+        - dynamodb:Query
+        - sns:Publish
+        - sqs:SendMessage
+        - sqs:ReceiveMessage
+        - sqs:DeleteMessage
+        - events:PutEvents
+      Resource: "*"
+
+functions:
+  appointment:
+    handler: dist/serverless.handler
+    events:
+      - http:
+          path: appointment
+          method: post
+      - http:
+          path: appointment/{insuredId}
+          method: get
+      - http:
+          path: /{proxy+}
+          method: any
+      - sqs:
+          arn:
+            Fn::GetAtt: [SQSConfirmationQueue, Arn]
+
+  appointment_pe:
+    handler: handlers/appointment_pe.handler
+    events:
+      - sqs:
+          arn:
+            Fn::GetAtt: [SQSPEQueue, Arn]
+
+  appointment_cl:
+    handler: handlers/appointment_cl.handler
+    events:
+      - sqs:
+          arn:
+            Fn::GetAtt: [SQSCLQueue, Arn]
+
+resources:
+  Resources:
+
+    ## DynamoDB Table
+    AppointmentsTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: AppointmentsTable
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+          - AttributeName: insuredId
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        GlobalSecondaryIndexes:
+          - IndexName: insuredId-index
+            KeySchema:
+              - AttributeName: insuredId
+                KeyType: HASH
+            Projection:
+              ProjectionType: ALL
+        BillingMode: PAY_PER_REQUEST
+
+    ## SNS Topic
+    AppointmentTopic:
+      Type: AWS::SNS::Topic
+      Properties:
+        TopicName: AppointmentTopic
+
+    ## SQS Queues
+    SQSPEQueue:
+      Type: AWS::SQS::Queue
+      Properties:
+        QueueName: SQS_PE
+
+    SQSCLQueue:
+      Type: AWS::SQS::Queue
+      Properties:
+        QueueName: SQS_CL
+
+    SQSConfirmationQueue:
+      Type: AWS::SQS::Queue
+      Properties:
+        QueueName: sqs-confirmation
+
+    ## SNS Subscriptions to SQS (with filter)
+    SNSSubscriptionPE:
+      Type: AWS::SNS::Subscription
+      Properties:
+        TopicArn:
+          Ref: AppointmentTopic
+        Protocol: sqs
+        Endpoint:
+          Fn::GetAtt: [SQSPEQueue, Arn]
+        FilterPolicy:
+          countryISO:
+            - PE
+
+    SNSSubscriptionCL:
+      Type: AWS::SNS::Subscription
+      Properties:
+        TopicArn:
+          Ref: AppointmentTopic
+        Protocol: sqs
+        Endpoint:
+          Fn::GetAtt: [SQSCLQueue, Arn]
+        FilterPolicy:
+          countryISO:
+            - CL
+
+  Outputs:
+    AppointmentApi:
+      Description: "API Gateway endpoint URL"
+      Value:
+        Fn::Join:
+          - ""
+          - - "https://"
+            - Ref: ApiGatewayRestApi
+            - ".execute-api.${self:provider.region}.amazonaws.com/${sls:stage}/"
+package:
+  individually: true
+  excludeDevDependencies: true
+  exclude:
+    - node_modules/@types/**
+    - node_modules/aws-sdk/**
+    - node_modules/typescript/**
