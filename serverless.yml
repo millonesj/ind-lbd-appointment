@@ -11,6 +11,7 @@ provider:
   runtime: nodejs20.x
   region: us-east-1
   environment:
+    DYNAMO_REGION: ${env:DYNAMO_REGION}
     APPOINTMENTS_TABLE: AppointmentsTable
     SNS_TOPIC_ARN: 
       Ref: AppointmentTopic

@@ -6,6 +6,7 @@ import configuration from './infraestructure/config/configuration';
 import { LoggingMiddleware } from './infraestructure/logger/logging.middleware';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { typeOrmConfig } from './infraestructure/config/type-orm-config';
+import { AppointmentsModule } from './presentation/appointment/appointments.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { typeOrmConfig } from './infraestructure/config/type-orm-config';
       useFactory: async () => typeOrmConfig,
       inject: [ConfigService],
     }),
+    AppointmentsModule,
   ],
   controllers: [AppController],
   providers: [AppService, Logger],

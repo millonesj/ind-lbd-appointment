@@ -39,4 +39,7 @@ export default () => ({
     limit: process.env.PAGINATION_LIMIT,
     maxLimit: process.env.PAGINATION_MAX_LIMIT,
   },
+  dynamoDB: {
+    region: process.env.DYNAMO_REGION,
+  },
 });
