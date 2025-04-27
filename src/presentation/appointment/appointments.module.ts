@@ -4,6 +4,7 @@ import { AppointmentService } from 'src/application/appointment/appointment.serv
 import { APPOINTMENT_REPOSITORY } from '../../infraestructure/dynamodb/appointment.interface';
 import { DynamoDBAppointmentRepository } from 'src/infraestructure/dynamodb/appointment.repository';
 import { ConfigService } from '@nestjs/config';
+import { SnsPublisherAdapter } from 'src/infraestructure/sns/sns-publisher.adapter';
 
 @Module({
   controllers: [AppointmentController],
@@ -14,6 +15,7 @@ import { ConfigService } from '@nestjs/config';
       useClass: DynamoDBAppointmentRepository,
     },
     ConfigService,
+    SnsPublisherAdapter,
   ],
 })
 export class AppointmentsModule {}

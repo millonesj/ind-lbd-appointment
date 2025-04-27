@@ -9,7 +9,9 @@ export class AxiosException implements IDtoErrorException {
       '🚀 ~ file: axios.exception.ts:8 ~ AxiosException ~ validate ~ exception:',
       exception,
     );
-    return this.isAxiosError(exception);
+    const isAxiosError =  this.isAxiosError(exception);
+    console.log("🚀 ~ :13 ~ AxiosException ~ validate ~ isAxiosError:", isAxiosError)
+    return isAxiosError;
   }
 
   returnValidation(error, exception): ErrorException {

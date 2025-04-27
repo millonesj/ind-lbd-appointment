@@ -46,15 +46,22 @@ export class AllExceptionsFilter extends BaseExceptionFilter {
     let errorResponse = {} as ErrorException;
 
     if (this.axiosException.validate(exception)) {
+      console.log(1);
       errorResponse = this.axiosException.returnValidation(error, exception);
     } else if (this.knowException.validate(exception)) {
+      console.log(2);
       errorResponse = this.knowException.returnValidation(error, exception);
+      console.log(3);
     } else if (this.dtoErrorException.validate(exception)) {
       errorResponse = this.dtoErrorException.returnValidation(error, exception);
     } else if (this.databaseException.validate(exception)) {
+      console.log(4);
       errorResponse = this.databaseException.returnValidation(error, exception);
     }
-
+    
+    console.log("🚀 ~ :48 ~ AllExceptionsFilter ~ errorResponse:", errorResponse)
+    
+    
     return response
       .status(errorResponse?.status || HttpStatus.INTERNAL_SERVER_ERROR)
       .json({

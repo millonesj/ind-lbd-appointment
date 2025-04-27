@@ -4,6 +4,7 @@ import {
   APPOINTMENT_REPOSITORY,
   AppointmentRepositoryI,
 } from 'src/infraestructure/dynamodb/appointment.interface';
+import { SnsPublisherAdapter } from 'src/infraestructure/sns/sns-publisher.adapter';
 import { v4 as uuidv4 } from 'uuid';
 
 export interface CreateAppointmentDTO {
@@ -17,9 +18,10 @@ export class AppointmentService {
   constructor(
     @Inject(APPOINTMENT_REPOSITORY)
     private readonly appointmentRepository: AppointmentRepositoryI,
+    private readonly snsPublisherAdapter: SnsPublisherAdapter,
   ) {}
 
-  async execute(dto: CreateAppointmentDTO): Promise<Appointment> {
+  async create(dto: CreateAppointmentDTO): Promise<Appointment> {
     const appointment = new Appointment(
       uuidv4(),
       dto.insuredId,
@@ -27,6 +29,7 @@ export class AppointmentService {
       dto.countryISO,
     );
     await this.appointmentRepository.save(appointment);
+    await this.snsPublisherAdapter.publish(appointment);
     return appointment;
   }
 }

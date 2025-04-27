@@ -15,6 +15,6 @@ export class AppointmentController {
     @Body()
     appointmentCreateDto: AppointmentCreateDto,
   ): Promise<Appointment> {
-    return this.appointmentService.execute(appointmentCreateDto);
+    return this.appointmentService.create(appointmentCreateDto);
   }
 }
