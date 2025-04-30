@@ -11,13 +11,13 @@ export class Appointment {
     public updatedAt: Date = new Date(),
   ) {}
 
-  setAsCompleted() {
-    this.status = 'completed';
-    this.updatedAt = new Date();
-  }
+  // setAsCompleted() {
+  //   this.status = 'completed';
+  //   this.updatedAt = new Date();
+  // }
 
-  setAsFailed() {
-    this.status = 'failed';
-    this.updatedAt = new Date();
-  }
+  // setAsFailed() {
+  //   this.status = 'failed';
+  //   this.updatedAt = new Date();
+  // }
 }
