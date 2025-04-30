@@ -1,6 +1,7 @@
-import { Controller, Post, Body } from '@nestjs/common';
+import { Controller, Post, Body, Query, Response, Get, Param } from '@nestjs/common';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { AppointmentService } from 'src/application/appointment/appointment.service';
+import { FindByInsuredDto } from 'src/application/appointment/dto/find-by-insured.dto';
 import { AppointmentCreateDto } from 'src/application/appointment/dto/appointment.create';
 import { Appointment } from 'src/domain/appointment.entity';
 
@@ -16,5 +17,19 @@ export class AppointmentController {
     appointmentCreateDto: AppointmentCreateDto,
   ): Promise<Appointment> {
     return this.appointmentService.create(appointmentCreateDto);
+  }
+
+  @Get('insured/:insuredId')
+  @ApiOperation({ summary: 'Get appointments by insuredId' })
+  async findByInsuredId(
+    @Param()
+    findByInsuredDto: FindByInsuredDto,
+    @Response() res,
+  ) {
+    const providers = await this.appointmentService.findByInsuredId(
+      findByInsuredDto,
+    );
+
+    return res.status(200).send(providers);
   }
 }

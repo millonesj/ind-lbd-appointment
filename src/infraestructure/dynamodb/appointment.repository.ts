@@ -5,6 +5,7 @@ import {
   DynamoDBDocumentClient,
   GetCommand,
   PutCommand,
+  QueryCommand,
 } from '@aws-sdk/lib-dynamodb';
 import { Appointment } from 'src/domain/appointment.entity';
 import { AppointmentRepositoryI } from 'src/infraestructure/dynamodb/appointment.interface';
@@ -23,7 +24,12 @@ export class DynamoDBAppointmentRepository implements AppointmentRepositoryI {
       region: this.DYNAMO_REGION,
     });
 
-    this.DOCUMENT_CLIENT = DynamoDBDocumentClient.from(this.DYNAMO_CLIENT);
+    this.DOCUMENT_CLIENT = DynamoDBDocumentClient.from(this.DYNAMO_CLIENT, {
+      marshallOptions: {
+        convertEmptyValues: true,
+        removeUndefinedValues: true,
+      },
+    });
   }
 
   async save(appointment: Appointment): Promise<void> {
@@ -63,6 +69,48 @@ export class DynamoDBAppointmentRepository implements AppointmentRepositoryI {
       result.Item.status,
       new Date(result.Item.createdAt),
       new Date(result.Item.updatedAt),
+    );
+  }
+
+  /* async findByInsuredId(insuredId: string): Promise<any | null> {
+    //async findByInsuredId(insuredId: string): Promise<Appointment[] | null> {
+    const params = {
+      TableName: this.tableName,
+      Key: { insuredId },
+    };
+
+    const command = new GetCommand(params);
+    const result = await this.DOCUMENT_CLIENT.send(command);
+
+    if (!result.Item) return null;
+
+    return result;
+  } */
+
+  async findByInsuredId(insuredId: string): Promise<Appointment[]> {
+    const command = new QueryCommand({
+      TableName: this.tableName,
+      IndexName: 'insuredId-index', // coincide con tu serverless.yml
+      KeyConditionExpression: 'insuredId = :insuredId',
+      ExpressionAttributeValues: {
+        ':insuredId': insuredId,
+      },
+    });
+  
+    const result = await this.DOCUMENT_CLIENT.send(command);
+  
+    if (!result.Items) return [];
+  
+    return result.Items.map((item) =>
+      new Appointment(
+        item.id,
+        item.insuredId,
+        item.scheduleId,
+        item.countryISO,
+        item.status,
+        new Date(item.createdAt),
+        new Date(item.updatedAt),
+      ),
     );
   }
 }
