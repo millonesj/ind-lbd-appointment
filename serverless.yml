@@ -77,6 +77,10 @@ resources:
       Type: AWS::SQS::Queue
       Properties:
         QueueName: SQS_PE
+    SQSCLQueue:
+      Type: AWS::SQS::Queue
+      Properties:
+        QueueName: SQS_CL
 
     ## SNS Subscription to SQS_PE (con filtro por país)
     SNSSubscriptionPE:
@@ -90,6 +94,17 @@ resources:
         FilterPolicy:
           countryISO:
             - PE
+    SNSSubscriptionCL:
+      Type: AWS::SNS::Subscription
+      Properties:
+        TopicArn:
+          Ref: AppointmentTopic
+        Protocol: sqs
+        Endpoint:
+          Fn::GetAtt: [SQSCLQueue, Arn]
+        FilterPolicy:
+          countryISO:
+            - CL
 
   Outputs:
     AppointmentApi:
