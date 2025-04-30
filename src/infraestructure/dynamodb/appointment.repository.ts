@@ -72,45 +72,31 @@ export class DynamoDBAppointmentRepository implements AppointmentRepositoryI {
     );
   }
 
-  /* async findByInsuredId(insuredId: string): Promise<any | null> {
-    //async findByInsuredId(insuredId: string): Promise<Appointment[] | null> {
-    const params = {
-      TableName: this.tableName,
-      Key: { insuredId },
-    };
-
-    const command = new GetCommand(params);
-    const result = await this.DOCUMENT_CLIENT.send(command);
-
-    if (!result.Item) return null;
-
-    return result;
-  } */
-
   async findByInsuredId(insuredId: string): Promise<Appointment[]> {
     const command = new QueryCommand({
       TableName: this.tableName,
-      IndexName: 'insuredId-index', // coincide con tu serverless.yml
+      IndexName: 'insuredId-index',
       KeyConditionExpression: 'insuredId = :insuredId',
       ExpressionAttributeValues: {
         ':insuredId': insuredId,
       },
     });
-  
+
     const result = await this.DOCUMENT_CLIENT.send(command);
-  
+
     if (!result.Items) return [];
-  
-    return result.Items.map((item) =>
-      new Appointment(
-        item.id,
-        item.insuredId,
-        item.scheduleId,
-        item.countryISO,
-        item.status,
-        new Date(item.createdAt),
-        new Date(item.updatedAt),
-      ),
+
+    return result.Items.map(
+      (item) =>
+        new Appointment(
+          item.id,
+          item.insuredId,
+          item.scheduleId,
+          item.countryISO,
+          item.status,
+          new Date(item.createdAt),
+          new Date(item.updatedAt),
+        ),
     );
   }
 }
