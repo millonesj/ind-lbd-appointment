@@ -32,14 +32,11 @@ functions:
     handler: dist/serverless.handler
     events:
       - http:
-          path: appointment
+          path: appointments
           method: post
       - http:
-          path: appointment/{insuredId}
+          path: appointments/insured/{insuredId}
           method: get
-      - http:
-          path: /{proxy+}
-          method: any
 
 resources:
   Resources:
