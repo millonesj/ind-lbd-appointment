@@ -27,6 +27,12 @@ export const handler: Handler = async (
   context: Context,
   callback: Callback,
 ) => {
-  server = server ?? (await bootstrap());
-  return server(event, context, callback);
+  if (event.httpMethod) {
+    server = server ?? (await bootstrap());
+    return server(event, context, callback);
+  } else if (event.Records && event.Records[0].eventSource === 'aws:sqs') {
+    for (const record of event.Records) {
+      console.log('🚀 ~ :38 ~ record:', record);
+    }
+  }
 };

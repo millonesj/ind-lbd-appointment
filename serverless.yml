@@ -37,6 +37,10 @@ functions:
       - http:
           path: appointments/insured/{insuredId}
           method: get
+      - sqs:
+          arn: !GetAtt AppointmentStatusQueue.Arn
+          batchSize: 1  # Procesa un mensaje a la vez para mejor control
+          maximumBatchingWindow: 30
 
 resources:
   Resources:
@@ -78,6 +82,48 @@ resources:
       Type: AWS::SQS::Queue
       Properties:
         QueueName: SQS_CL
+    # Cola SQS para estados
+    AppointmentStatusQueue:
+      Type: AWS::SQS::Queue
+      Properties:
+        QueueName: AppointmentStatusQueue
+
+    # EventBridge (Event Bus)
+    AppointmentEventBus:
+      Type: AWS::Events::EventBus
+      Properties:
+        Name: AppointmentEventBus  # Nombre personalizado para tu bus de eventos
+
+    # Reglas de EventBridge
+    # EventBridge para PE
+    PEEventBridgeRule:
+      Type: AWS::Events::Rule
+      Properties:
+        EventBusName: !Ref AppointmentEventBus
+        Name: PEStatusUpdates
+        EventPattern:
+          source: ["appointment_pe.service"]
+          detail-type: ["AppointmentConfirmationPE"]
+        Targets:
+          - Arn: !GetAtt AppointmentStatusQueue.Arn
+            Id: "PEStatusTarget"
+     # EventBridge para CL
+    CLEventBridgeRule:
+      Type: AWS::Events::Rule
+      Properties:
+        EventBusName: !Ref AppointmentEventBus
+        Name: CLStatusUpdates
+        EventPattern:
+          source: ["appointment_cl.service"]
+          detail-type: ["AppointmentConfirmation"]
+        Targets:
+          - Arn: !GetAtt AppointmentStatusQueue.Arn
+            Id: "CLStatusTarget"
+            InputTransformer:
+              InputPathsMap:
+                id: "$.detail.appointmentId"
+                status: "$.detail.status"
+              InputTemplate: '{"appointmentId": <id>, "status": <status>, "country": "CL"}'
 
     ## SNS Subscription to SQS_PE (con filtro por país)
     SNSSubscriptionPE:
@@ -102,6 +148,21 @@ resources:
         FilterPolicy:
           countryISO:
             - CL
+
+    # Permisos para que EventBridge pueda escribir en SQS
+    EventBridgeToSQSPermission:
+      Type: AWS::SQS::QueuePolicy
+      Properties:
+        Queues:
+          - !Ref AppointmentStatusQueue
+        PolicyDocument:
+          Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Principal:
+                Service: events.amazonaws.com  # Permite a EventBridge por SQS
+              Action: sqs:SendMessage          # Enviar mensajes
+              Resource: !GetAtt AppointmentStatusQueue.Arn # A esta cola específica
 
   Outputs:
     AppointmentApi:
