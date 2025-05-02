@@ -10,7 +10,7 @@ provider:
   name: aws
   runtime: nodejs20.x
   region: us-east-1
-  memorySize: 512
+  memorySize: 190
   timeout: 15
   environment:
     DYNAMO_REGION: ${env:DYNAMO_REGION}
