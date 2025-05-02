@@ -4,7 +4,8 @@ import { Matches } from 'class-validator';
 export class FindByInsuredDto {
   @ApiProperty()
   @Matches(/^\d{5}$/, {
-    message: 'insuredId must be a 5-digit number, including leading zeros',
+    message:
+      'insuredId debe ser un número de 5 dígitos, incluidos los ceros iniciales.',
   })
   insuredId: string;
 }

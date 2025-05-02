@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEnum, IsNumber, IsString, IsUrl, Matches } from 'class-validator';
+import { IsEnum, IsNumber, Matches } from 'class-validator';
 
 const allowedCountryISO = ['PE', 'CL'];
 export class AppointmentCreateDto {
