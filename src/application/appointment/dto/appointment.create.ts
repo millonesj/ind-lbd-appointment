@@ -11,7 +11,12 @@ export class AppointmentCreateDto {
   insuredId: string;
 
   @ApiProperty()
-  @IsNumber()
+  @IsNumber(
+    {},
+    {
+      message: 'scheduleId debería ser un número',
+    },
+  )
   scheduleId: number;
 
   @ApiProperty()

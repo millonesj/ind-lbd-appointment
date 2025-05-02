@@ -5,12 +5,7 @@ import { ErrorException } from '../interfaces/error-response.interface';
 
 export class AxiosException implements IDtoErrorException {
   validate(exception) {
-    console.log(
-      '🚀 ~ file: axios.exception.ts:8 ~ AxiosException ~ validate ~ exception:',
-      exception,
-    );
-    const isAxiosError =  this.isAxiosError(exception);
-    console.log("🚀 ~ :13 ~ AxiosException ~ validate ~ isAxiosError:", isAxiosError)
+    const isAxiosError = this.isAxiosError(exception);
     return isAxiosError;
   }
 
