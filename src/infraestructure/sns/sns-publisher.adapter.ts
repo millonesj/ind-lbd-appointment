@@ -1,17 +1,25 @@
 import { PublishCommand } from '@aws-sdk/client-sns';
-import { Appointment } from 'src/domain/appointment.entity';
-import { SnsPublisherI } from './sns-publisher.interface';
+import {
+  AppointmentI,
+  CountryISOI,
+  SnsPublisherI,
+} from './sns-publisher.interface';
 import { snsClient } from './sns-client';
+import { Logger } from '@nestjs/common';
 
 export class SnsPublisherAdapter implements SnsPublisherI {
+  private readonly logger = new Logger(SnsPublisherAdapter.name);
   private readonly topicArn = process.env.SNS_TOPIC_ARN || '';
 
-  async publish(appointment: Appointment): Promise<void> {
+  async publish(
+    appointment: AppointmentI,
+    countryISO: CountryISOI,
+  ): Promise<void> {
     try {
       const messageAttributes = {
         countryISO: {
           DataType: 'String',
-          StringValue: appointment.countryISO,
+          StringValue: countryISO,
         },
       };
 
@@ -23,10 +31,9 @@ export class SnsPublisherAdapter implements SnsPublisherI {
 
       const response = await snsClient.send(command);
 
-      console.log('Mensaje publicado con ID:', response.MessageId);
-      // Puedes registrar el response.$metadata para debugging
+      this.logger.log(`Mensaje publicado con ID: ${response.MessageId}`);
     } catch (error) {
-      console.error('Error al publicar en SNS:', error);
+      this.logger.error(`Error al publicar en SNS: ${error?.message}`);
       throw error; // Propaga el error para que el caller lo maneje
     }
   }

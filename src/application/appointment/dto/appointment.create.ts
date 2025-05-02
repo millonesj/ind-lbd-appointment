@@ -1,10 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsEnum, IsNumber, IsString, IsUrl, Matches } from 'class-validator';
 
+const allowedCountryISO = ['PE', 'CL'];
 export class AppointmentCreateDto {
   @ApiProperty()
   @Matches(/^\d{5}$/, {
-    message: 'insuredId must be a 5-digit number, including leading zeros',
+    message:
+      'insuredId debe ser un número de 5 dígitos, incluidos los ceros iniciales.',
   })
   insuredId: string;
 
@@ -13,6 +15,10 @@ export class AppointmentCreateDto {
   scheduleId: number;
 
   @ApiProperty()
-  @IsEnum(['PE', 'CL'])
+  @IsEnum(allowedCountryISO, {
+    message: `countryISO debe ser uno de los siguientes valores: ${allowedCountryISO.join(
+      ', ',
+    )}`,
+  })
   countryISO: 'PE' | 'CL';
 }

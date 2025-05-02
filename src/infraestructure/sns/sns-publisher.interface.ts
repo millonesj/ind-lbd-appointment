@@ -1,5 +1,11 @@
-import { Appointment } from 'src/domain/appointment.entity';
-
 export interface SnsPublisherI {
-  publish(appointment: Appointment): Promise<void>;
+  publish(appointment: AppointmentI, CountryISO): Promise<void>;
 }
+
+export interface AppointmentI {
+  id: string;
+  insuredId: string;
+  scheduleId: number;
+}
+
+export type CountryISOI = 'PE' | 'CL';

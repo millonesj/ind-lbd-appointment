@@ -6,9 +6,8 @@ import {
 } from 'src/infraestructure/dynamodb/appointment.interface';
 import { SnsPublisherAdapter } from 'src/infraestructure/sns/sns-publisher.adapter';
 import { v4 as uuidv4 } from 'uuid';
-import { publishAppointment } from '../publishAppointment';
 import { FindByInsuredDto } from './dto/find-by-insured.dto';
-import { OrderByEnum } from 'src/infraestructure/common/base.pagination.dto';
+import { AppointmentI } from 'src/infraestructure/sns/sns-publisher.interface';
 
 export interface CreateAppointmentDTO {
   insuredId: string;
@@ -34,7 +33,13 @@ export class AppointmentService {
     );
 
     await this.appointmentRepository.save(appointment);
-    await this.snsPublisherAdapter.publish(appointment);
+
+    const appointmentSNS: AppointmentI = {
+      id: appointment.id,
+      insuredId: appointment.insuredId,
+      scheduleId: appointment.scheduleId,
+    };
+    await this.snsPublisherAdapter.publish(appointmentSNS, dto.countryISO);
     return appointment;
   }
 

@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Query, Response, Get, Param } from '@nestjs/common';
+import { Controller, Post, Body, Response, Get, Param } from '@nestjs/common';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { AppointmentService } from 'src/application/appointment/appointment.service';
 import { FindByInsuredDto } from 'src/application/appointment/dto/find-by-insured.dto';
@@ -11,7 +11,7 @@ export class AppointmentController {
 
   @Post()
   @ApiOperation({ summary: 'Create new appointment' })
-  @ApiResponse({ status: 201, description: 'successfull created' })
+  @ApiResponse({ status: 201, description: 'Successfully created' })
   async create(
     @Body()
     appointmentCreateDto: AppointmentCreateDto,
