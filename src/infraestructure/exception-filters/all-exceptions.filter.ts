@@ -58,10 +58,7 @@ export class AllExceptionsFilter extends BaseExceptionFilter {
       console.log(4);
       errorResponse = this.databaseException.returnValidation(error, exception);
     }
-    
-    console.log("🚀 ~ :48 ~ AllExceptionsFilter ~ errorResponse:", errorResponse)
-    
-    
+
     return response
       .status(errorResponse?.status || HttpStatus.INTERNAL_SERVER_ERROR)
       .json({

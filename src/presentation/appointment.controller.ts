@@ -8,10 +8,10 @@ import {
   ApiParam,
   ApiResponse,
 } from '@nestjs/swagger';
-import { AppointmentService } from 'src/application/appointment/appointment.service';
-import { FindByInsuredDto } from 'src/application/appointment/dto/find-by-insured.dto';
-import { AppointmentCreateDto } from 'src/application/appointment/dto/appointment.create';
-import { Appointment } from 'src/domain/appointment.entity';
+import { AppointmentService } from '../application/appointment/appointment.service';
+import { FindByInsuredDto } from '../application/appointment/dto/find-by-insured.dto';
+import { AppointmentCreateDto } from '../application/appointment/dto/appointment.create';
+import { Appointment } from '../domain/appointment.entity';
 
 @Controller('appointments')
 export class AppointmentController {

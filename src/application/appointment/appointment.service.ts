@@ -1,13 +1,16 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
-import { Appointment, AppointmentStatus } from 'src/domain/appointment.entity';
+import {
+  Appointment,
+  AppointmentStatus,
+} from '../../domain/appointment.entity';
 import {
   APPOINTMENT_REPOSITORY,
   AppointmentRepositoryI,
-} from 'src/infraestructure/dynamodb/appointment.interface';
-import { SnsPublisherAdapter } from 'src/infraestructure/sns/sns-publisher.adapter';
+} from '../../infraestructure/dynamodb/appointment.interface';
+import { SnsPublisherAdapter } from '../../infraestructure/sns/sns-publisher.adapter';
 import { v4 as uuidv4 } from 'uuid';
 import { FindByInsuredDto } from './dto/find-by-insured.dto';
-import { AppointmentI } from 'src/infraestructure/sns/sns-publisher.interface';
+import { AppointmentI } from '../../infraestructure/sns/sns-publisher.interface';
 
 export interface CreateAppointmentDTO {
   insuredId: string;

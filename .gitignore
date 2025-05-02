@@ -2,6 +2,10 @@
 .serverless
 .env
 
+# Coverage directory used by tools like istanbul
+/test/coverage/**
+*.lcov
+
 # compiled output
 /dist
 /node_modules

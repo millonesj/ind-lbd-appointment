@@ -8,8 +8,8 @@ import {
   QueryCommand,
   UpdateCommand,
 } from '@aws-sdk/lib-dynamodb';
-import { Appointment } from 'src/domain/appointment.entity';
-import { AppointmentRepositoryI } from 'src/infraestructure/dynamodb/appointment.interface';
+import { Appointment } from '../../domain/appointment.entity';
+import { AppointmentRepositoryI } from '../../infraestructure/dynamodb/appointment.interface';
 
 @Injectable()
 export class DynamoDBAppointmentRepository implements AppointmentRepositoryI {
@@ -118,5 +118,10 @@ export class DynamoDBAppointmentRepository implements AppointmentRepositoryI {
 
     const command = new UpdateCommand(params);
     await this.DOCUMENT_CLIENT.send(command);
+  }
+
+  async close(): Promise<void> {
+    await this.DOCUMENT_CLIENT.destroy();
+    await this.DYNAMO_CLIENT.destroy();
   }
 }

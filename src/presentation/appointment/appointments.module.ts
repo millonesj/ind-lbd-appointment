@@ -1,10 +1,10 @@
 import { Logger, Module } from '@nestjs/common';
 import { AppointmentController } from '../appointment.controller';
-import { AppointmentService } from 'src/application/appointment/appointment.service';
+import { AppointmentService } from '../../application/appointment/appointment.service';
 import { APPOINTMENT_REPOSITORY } from '../../infraestructure/dynamodb/appointment.interface';
-import { DynamoDBAppointmentRepository } from 'src/infraestructure/dynamodb/appointment.repository';
+import { DynamoDBAppointmentRepository } from '../../infraestructure/dynamodb/appointment.repository';
 import { ConfigService } from '@nestjs/config';
-import { SnsPublisherAdapter } from 'src/infraestructure/sns/sns-publisher.adapter';
+import { SnsPublisherAdapter } from '../../infraestructure/sns/sns-publisher.adapter';
 
 @Module({
   controllers: [AppointmentController],
