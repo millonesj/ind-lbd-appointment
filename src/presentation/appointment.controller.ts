@@ -77,6 +77,7 @@ export class AppointmentController {
               statusCode: 400,
               message: [
                 'insuredId debe ser un número de 5 dígitos, incluidos los ceros iniciales.',
+                'scheduleId debería ser un número',
                 'countryISO debe ser uno de los siguientes valores: PE, CL',
               ],
               error: 'Bad Request',
