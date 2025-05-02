@@ -1,5 +1,5 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
-import { Appointment } from 'src/domain/appointment.entity';
+import { Appointment, AppointmentStatus } from 'src/domain/appointment.entity';
 import {
   APPOINTMENT_REPOSITORY,
   AppointmentRepositoryI,
@@ -56,5 +56,21 @@ export class AppointmentService {
       countResponse: response?.length,
     });
     return response;
+  }
+
+  async updateAppointmentStatus(id: string, status: string): Promise<void> {
+    this.logger.log(`Updating appointment ${id} to status ${status}`);
+
+    const appointment = await this.appointmentRepository.findById(id);
+    if (!appointment) {
+      throw new Error(`Appointment with id ${id} not found`);
+    }
+
+    appointment.status = status as AppointmentStatus;
+    appointment.updatedAt = new Date();
+
+    await this.appointmentRepository.save(appointment);
+
+    this.logger.log(`Appointment ${id} successfully updated to ${status}`);
   }
 }

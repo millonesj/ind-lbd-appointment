@@ -6,6 +6,7 @@ import {
   GetCommand,
   PutCommand,
   QueryCommand,
+  UpdateCommand,
 } from '@aws-sdk/lib-dynamodb';
 import { Appointment } from 'src/domain/appointment.entity';
 import { AppointmentRepositoryI } from 'src/infraestructure/dynamodb/appointment.interface';
@@ -98,5 +99,24 @@ export class DynamoDBAppointmentRepository implements AppointmentRepositoryI {
           new Date(item.updatedAt),
         ),
     );
+  }
+
+  async updateStatus(id: string, status: string): Promise<void> {
+    const params = {
+      TableName: this.tableName,
+      Key: { id },
+      UpdateExpression: 'SET #status = :status, #updatedAt = :updatedAt',
+      ExpressionAttributeNames: {
+        '#status': 'status',
+        '#updatedAt': 'updatedAt',
+      },
+      ExpressionAttributeValues: {
+        ':status': status,
+        ':updatedAt': new Date().toISOString(),
+      },
+    };
+
+    const command = new UpdateCommand(params);
+    await this.DOCUMENT_CLIENT.send(command);
   }
 }

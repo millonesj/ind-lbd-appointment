@@ -2,9 +2,11 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { configure as serverlessExpress } from '@vendia/serverless-express';
 import { Handler, Context, Callback } from 'aws-lambda';
-import { ValidationPipe } from '@nestjs/common';
+import { Logger, ValidationPipe } from '@nestjs/common';
+import { AppointmentService } from './application/appointment/appointment.service';
 
 let server: Handler;
+const logger = new Logger('AppointmentLambdaHandler');
 
 async function bootstrap(): Promise<Handler> {
   const app = await NestFactory.create(AppModule);
@@ -31,8 +33,26 @@ export const handler: Handler = async (
     server = server ?? (await bootstrap());
     return server(event, context, callback);
   } else if (event.Records && event.Records[0].eventSource === 'aws:sqs') {
+    const app = await NestFactory.createApplicationContext(AppModule);
+    const appointmentService = app.get(AppointmentService);
     for (const record of event.Records) {
-      console.log('🚀 ~ :38 ~ record:', record);
+      logger.log('EventHandlerService.handleEvent', record.body);
+      try {
+        const message = JSON.parse(record.body);
+        const appointmentConfirmation =
+          message?.detail?.appointmentConfirmation;
+        logger.log('Processing SQS message');
+
+        await appointmentService.updateAppointmentStatus(
+          appointmentConfirmation.id,
+          appointmentConfirmation.status,
+        );
+
+        logger.log(`Appointment ${message.appointmentId} updated to completed`);
+      } catch (error) {
+        logger.error('Error processing SQS message:', error);
+        throw error;
+      }
     }
   }
 };
